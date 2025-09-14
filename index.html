@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   CyberMark - Really Cool Bookmarklet Forge
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js">
+  </script>
+  <link href="assets/style.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
+   <header class="text-center mb-8 sm:mb-10 animate-up">
+    <h1 class="text-4xl sm:text-5xl font-black mb-2 sm:mb-3 gradient-text">
+     CyberMark
+    </h1>
+    <p class="text-secondary text-xs sm:text-sm font-medium">
+     Really Cool Bookmarklet Forge Bookmarklet Forge
+    </p>
+    <p class="text-secondary text-xs mt-2">
+     Crafted by
+     <a class="text-white hover:text-accent transition-colors" href="https://notalex.sh">
+      notalex.sh
+     </a>
+    </p>
+   </header>
+   <div class="grid lg:grid-cols-3 gap-4 sm:gap-6">
+    <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+     <div class="card card-elevated p-4 sm:p-6 animate-up stagger-1">
+      <div class="mb-4 sm:mb-6">
+       <h2 class="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+         <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+         </path>
+        </svg>
+        Code Editor
+       </h2>
+       <div class="space-y-4 mb-4 sm:mb-6">
+        <div>
+         <label class="block text-xs text-secondary mb-2 font-medium uppercase tracking-wider">
+          Bookmarklet Name
+         </label>
+         <input class="input-field" id="bookmarkletName" placeholder="My Awesome Script" type="text" value="CyberScript"/>
+        </div>
+        <div class="options-grid grid grid-cols-3 gap-2 sm:gap-4">
+         <label class="flex items-center gap-2 sm:gap-3 cursor-pointer">
+          <label class="toggle">
+           <input checked="" id="uglifyCode" type="checkbox"/>
+           <span class="toggle-slider">
+           </span>
+          </label>
+          <span class="text-xs sm:text-sm text-secondary">
+           Minify
+          </span>
+         </label>
+         <label class="flex items-center gap-2 sm:gap-3 cursor-pointer">
+          <label class="toggle">
+           <input checked="" id="wrapIIFE" type="checkbox"/>
+           <span class="toggle-slider">
+           </span>
+          </label>
+          <span class="text-xs sm:text-sm text-secondary">
+           IIFE
+          </span>
+         </label>
+         <label class="flex items-center gap-2 sm:gap-3 cursor-pointer">
+          <label class="toggle">
+           <input checked="" id="encodeURI" type="checkbox"/>
+           <span class="toggle-slider">
+           </span>
+          </label>
+          <span class="text-xs sm:text-sm text-secondary">
+           Encode
+          </span>
+         </label>
+        </div>
+       </div>
+       <div class="mb-4">
+        <label class="block text-xs text-secondary mb-2 font-medium uppercase tracking-wider">
+         JavaScript Code
+        </label>
+        <textarea id="codeInput"></textarea>
+       </div>
+       <div class="grid sm:grid-cols-2 gap-4 mb-4 sm:mb-6">
+        <div>
+         <label class="block text-xs text-secondary mb-2 font-medium uppercase tracking-wider">
+          External Scripts
+         </label>
+         <textarea class="input-field h-20 font-mono text-xs" id="externalScripts" placeholder="https://cdn.jsdelivr.net/npm/library.js"></textarea>
+        </div>
+        <div>
+         <label class="block text-xs text-secondary mb-2 font-medium uppercase tracking-wider">
+          External Styles
+         </label>
+         <textarea class="input-field h-20 font-mono text-xs" id="externalStyles" placeholder="https://cdn.jsdelivr.net/npm/styles.css"></textarea>
+        </div>
+       </div>
+       <button class="btn-primary w-full" onclick="generateBookmarklet()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+         <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+         </path>
+        </svg>
+        Generate Bookmarklet
+       </button>
+      </div>
+     </div>
+     <div class="card card-elevated p-4 sm:p-6 animate-up stagger-2" id="outputSection" style="opacity: 0;">
+      <h2 class="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        </path>
+       </svg>
+       Generated Output
+      </h2>
+      <div class="mb-4 sm:mb-6">
+       <p class="text-xs sm:text-sm text-secondary mb-3">
+        Drag this button to your bookmarks bar:
+       </p>
+       <a class="bookmarklet-btn" href="#" id="bookmarkletLink">
+        <svg class="w-4 sm:w-5 h-4 sm:h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+         <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+         </path>
+        </svg>
+        <span id="bookmarkletLinkText">
+         CyberScript
+        </span>
+       </a>
+      </div>
+      <div class="mb-4 sm:mb-6">
+       <div class="flex items-center justify-between mb-2">
+        <label class="text-xs text-secondary font-medium uppercase tracking-wider">
+         Bookmarklet Code
+        </label>
+        <button class="btn-secondary text-xs" onclick="copyCode()">
+         Copy Code
+        </button>
+       </div>
+       <div class="code-output" id="outputCode">
+       </div>
+      </div>
+      <div class="grid grid-cols-3 gap-2 sm:gap-3">
+       <div class="stat-card">
+        <p class="text-xs text-secondary mb-1">
+         Original
+        </p>
+        <p class="text-xs sm:text-sm font-bold" id="originalSize">
+         0 bytes
+        </p>
+       </div>
+       <div class="stat-card">
+        <p class="text-xs text-secondary mb-1">
+         Compressed
+        </p>
+        <p class="text-xs sm:text-sm font-bold text-accent" id="compressedSize">
+         0 bytes
+        </p>
+       </div>
+       <div class="stat-card">
+        <p class="text-xs text-secondary mb-1">
+         Reduction
+        </p>
+        <p class="text-xs sm:text-sm font-bold text-success" id="reduction">
+         0%
+        </p>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="space-y-4 sm:space-y-6">
+     <div class="card p-4 sm:p-6 animate-up stagger-3">
+      <h3 class="text-base sm:text-lg font-bold mb-4 flex items-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        </path>
+       </svg>
+       Usage Guide
+      </h3>
+      <div class="space-y-3">
+       <div class="guide-section">
+        <h4 class="text-sm font-semibold mb-2 text-white">
+         Quick Start
+        </h4>
+        <p class="text-xs text-secondary mb-2">
+         Write JavaScript that executes on click:
+        </p>
+        <pre><code>alert('Hello World!');
+document.body.style.filter = 'invert(1)';</code></pre>
+       </div>
+       <div class="guide-section">
+        <h4 class="text-sm font-semibold mb-2 text-white">
+         DOM Manipulation
+        </h4>
+        <p class="text-xs text-secondary mb-2">
+         Modify the current page:
+        </p>
+        <pre><code>[...document.images].forEach(img =&gt; 
+  img.remove()
+);
+
+document.querySelectorAll('a')
+  .forEach(a =&gt; {
+    a.style.background = '#3b82f6';
+    a.style.color = 'white';
+  });</code></pre>
+       </div>
+       <div class="guide-section mobile-hide">
+        <h4 class="text-sm font-semibold mb-2 text-white">
+         External Resources
+        </h4>
+        <p class="text-xs text-secondary mb-2">
+         Load scripts/styles with
+         <code>
+          !loadOnce
+         </code>
+         prefix:
+        </p>
+        <pre><code>!loadOnce https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js</code></pre>
+       </div>
+       <div class="guide-section">
+        <h4 class="text-sm font-semibold mb-2 text-white">
+         Advanced Features
+        </h4>
+        <ul class="text-xs text-secondary space-y-1">
+         <li class="flex items-start gap-2">
+          <span class="text-accent mt-0.5">
+           ▸
+          </span>
+          <span>
+           Auto-minification for smaller size
+          </span>
+         </li>
+         <li class="flex items-start gap-2">
+          <span class="text-accent mt-0.5">
+           ▸
+          </span>
+          <span>
+           IIFE wrapping prevents conflicts
+          </span>
+         </li>
+         <li class="flex items-start gap-2">
+          <span class="text-accent mt-0.5">
+           ▸
+          </span>
+          <span>
+           URI encoding for compatibility
+          </span>
+         </li>
+         <li class="flex items-start gap-2">
+          <span class="text-accent mt-0.5">
+           ▸
+          </span>
+          <span>
+           Duplicate resource prevention
+          </span>
+         </li>
+        </ul>
+       </div>
+       <div class="guide-section">
+        <h4 class="text-sm font-semibold mb-2 text-white">
+         Pro Tips
+        </h4>
+        <ul class="text-xs text-secondary space-y-1">
+         <li class="flex items-start gap-2">
+          <span class="text-success mt-0.5">
+           ✓
+          </span>
+          <span>
+           Keep code under 2000 chars
+          </span>
+         </li>
+         <li class="flex items-start gap-2">
+          <span class="text-success mt-0.5">
+           ✓
+          </span>
+          <span>
+           Test on target sites first
+          </span>
+         </li>
+         <li class="flex items-start gap-2">
+          <span class="text-success mt-0.5">
+           ✓
+          </span>
+          <span>
+           Use const/let over var
+          </span>
+         </li>
+         <li class="flex items-start gap-2">
+          <span class="text-success mt-0.5">
+           ✓
+          </span>
+          <span>
+           Avoid global pollution
+          </span>
+         </li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="toast" id="copyToast">
+   Code copied to clipboard
+  </div>
+  <script defer="True" src="assets/app.js">
+  </script>
+ </body>
+</html>
