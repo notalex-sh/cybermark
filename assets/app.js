@@ -32,15 +32,24 @@ enhance();`
 });
 
 async function generateBookmarklet() {
-    const button = event.target;
-    button.disabled = true;
+    const button = document.getElementById('generateBtn');
+    const outputSection = document.getElementById('outputSection');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const resultsContent = document.getElementById('resultsContent');
 
+    button.disabled = true;
     button.innerHTML = `
                 <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
                 Generating...
             `;
+
+    // Show loading state
+    outputSection.classList.remove('animate-up');
+    outputSection.style.opacity = '1';
+    loadingIndicator.style.display = 'block';
+    resultsContent.style.display = 'none';
 
     try {
         await new Promise(resolve => setTimeout(resolve, 500)); // Simulate processing time
@@ -125,22 +134,25 @@ async function generateBookmarklet() {
             finalCode = `javascript:${finalCode}`;
         }
 
+        // Populate results
         document.getElementById('outputCode').textContent = finalCode;
         document.getElementById('bookmarkletLink').href = finalCode;
         document.getElementById('bookmarkletLinkText').textContent = name;
         document.getElementById('originalSize').textContent = `${originalSize} bytes`;
         document.getElementById('compressedSize').textContent = `${finalCode.length} bytes`;
-
         const reduction = originalSize > 0 ? Math.round((1 - finalCode.length / originalSize) * 100) : 0;
         document.getElementById('reduction').textContent = `${reduction}%`;
 
-        const outputSection = document.getElementById('outputSection');
-        outputSection.style.opacity = '1';
+        // Show results
+        loadingIndicator.style.display = 'none';
+        resultsContent.style.display = 'block';
         outputSection.classList.add('animate-up');
+
 
     } catch (err) {
         alert("An error occurred during minification: " + err);
         console.error(err);
+        outputSection.style.opacity = '0'; // Hide section on error
     } finally {
         button.disabled = false;
         button.innerHTML = `
@@ -165,7 +177,7 @@ function copyCode() {
 }
 
 setTimeout(() => {
-    const button = document.querySelector('button');
+    const button = document.getElementById('generateBtn');
     if (button) {
         button.click();
     }
