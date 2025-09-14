@@ -31,16 +31,7 @@ const editor = CodeMirror.fromTextArea(document.getElementById('codeInput'), {
 enhance();`
 });
 
-function simpleMinify(code) {
-    return code
-        .replace(/\/\*[\s\S]*?\*\//g, '')
-        .replace(/\/\/.*$/gm, '')
-        .replace(/\s+/g, ' ')
-        .replace(/\s*([{}();,:])\s*/g, '$1')
-        .trim();
-}
-
-function generateBookmarklet() {
+async function generateBookmarklet() {
     const button = event.target;
     button.disabled = true;
 
@@ -51,7 +42,9 @@ function generateBookmarklet() {
                 Generating...
             `;
 
-    setTimeout(() => {
+    try {
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate processing time
+
         const code = editor.getValue();
         const name = document.getElementById('bookmarkletName').value || 'Bookmarklet';
         const scripts = document.getElementById('externalScripts').value.split('\n').filter(s => s.trim());
@@ -101,9 +94,7 @@ function generateBookmarklet() {
                 }
                 scriptCode += `s.src="${url}";s.onload=function(){${finalCode}};document.body.appendChild(s);`;
                 if (loadOnce) {
-                    scriptCode += `}else{${finalCode}}`;
-                } else {
-                    scriptCode += '';
+                    scriptCode += `}else{(${finalCode})()}`;
                 }
 
                 finalCode = scriptCode;
@@ -113,7 +104,15 @@ function generateBookmarklet() {
         const originalSize = finalCode.length;
 
         if (shouldMinify) {
-            finalCode = simpleMinify(finalCode);
+            const result = await Terser.minify(finalCode, {
+                mangle: {
+                    toplevel: false
+                }
+            });
+            if (result.error) {
+                throw result.error;
+            }
+            finalCode = result.code;
         }
 
         if (shouldWrapIIFE) {
@@ -132,13 +131,17 @@ function generateBookmarklet() {
         document.getElementById('originalSize').textContent = `${originalSize} bytes`;
         document.getElementById('compressedSize').textContent = `${finalCode.length} bytes`;
 
-        const reduction = Math.round((1 - finalCode.length / originalSize) * 100);
+        const reduction = originalSize > 0 ? Math.round((1 - finalCode.length / originalSize) * 100) : 0;
         document.getElementById('reduction').textContent = `${reduction}%`;
 
         const outputSection = document.getElementById('outputSection');
         outputSection.style.opacity = '1';
         outputSection.classList.add('animate-up');
 
+    } catch (err) {
+        alert("An error occurred during minification: " + err);
+        console.error(err);
+    } finally {
         button.disabled = false;
         button.innerHTML = `
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,8 +149,9 @@ function generateBookmarklet() {
                     </svg>
                     Generate Bookmarklet
                 `;
-    }, 500);
+    }
 }
+
 
 function copyCode() {
     const code = document.getElementById('outputCode').textContent;
@@ -162,5 +166,7 @@ function copyCode() {
 
 setTimeout(() => {
     const button = document.querySelector('button');
-    button.click();
+    if (button) {
+        button.click();
+    }
 }, 1000);
